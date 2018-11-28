@@ -5,6 +5,7 @@ import skimage
 import skimage.io
 import skimage.transform
 import matplotlib.pyplot as plt
+from keras.preprocessing.image import ImageDataGenerator
 
 
 data_dir = '../input'
@@ -28,9 +29,24 @@ def show_img(file):
 
     return img[:,:,:img_channels]
 
-plt.imshow(img)
-plt.show()
+#plt.imshow(img)
+#plt.show()
 
+test = data.iloc[0:2]
+test1 = np.stack(test['file'].apply(show_img))
+print(test1)
 
+generator = ImageDataGenerator(
+    featurewise_center=False,  # set input mean to 0 over the dataset
+    samplewise_center=False,  # set each sample mean to 0
+    featurewise_std_normalization=False,  # divide inputs by std of the dataset
+    samplewise_std_normalization=False,  # divide each input by its std
+    zca_whitening=False,  # apply ZCA whitening
+    rotation_range=180,  # randomly rotate images in the range (degrees, 0 to 180)
+    zoom_range=0.1,  # Randomly zoom image
+    width_shift_range=0.2,  # randomly shift images horizontally (fraction of total width)
+    height_shift_range=0.2,  # randomly shift images vertically (fraction of total height)
+    horizontal_flip=True,  # randomly flip images
+    vertical_flip=True)
 
-
+generator.fit(test1)
