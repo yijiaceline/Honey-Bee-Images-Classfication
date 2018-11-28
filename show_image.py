@@ -17,8 +17,8 @@ def to_file_path(file_name):
 
 print(data.head())
 
-img_wid = 100
-img_len = 100
+img_wid = 120
+img_len = 120
 img_channels = 3 #RGB
 
 #show image
