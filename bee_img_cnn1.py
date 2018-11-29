@@ -83,7 +83,6 @@ generator.fit(train_img)
 from sklearn.preprocessing import LabelEncoder
 le = LabelEncoder()
 le.fit(y_train)
-#tensor
 encoded_Y = le.transform(y_train)
 encoded_yt = le.transform(y_test)
 #arget = np_utils.to_categorical(encoded_Y )
@@ -170,7 +169,7 @@ model = cnn()
 model.summary()
 
 
-training1=model.fit(train_img, y_tr, batch_size = 80, validation_split = 0, epochs = 50, verbose = 1)
+training1=model.fit(train_img, y_tr, batch_size = 50, validation_split = 0, epochs = 50, verbose = 1)
 
 training2= model.fit_generator(generator.flow(train_img,y_tr, batch_size=32)
                         ,epochs=20, verbose = 1
