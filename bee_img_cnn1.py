@@ -1,146 +1,34 @@
-
-# coding: utf-8
-
-# In[ ]:
-
-
 import pandas as pd
 import numpy as np
-import keras
 import matplotlib.pyplot as plt
-import torch
-from torch.autograd import Variable
-import torch.nn as nn
-import torch.optim as optim
-import torchvision.transforms as transforms
+from sklearn.model_selection import train_test_split
+from sklearn import preprocessing
+import skimage
+import skimage.io
+import os
+import skimage.transform
 
 
-
-# # EDA
-
-# In[3]:
-
-
-bee=pd.read_csv("bee_data.csv")
-
-
-# In[4]:
-
-'''
-bee.shape
-
-
-# In[5]:
-
-
-bee.head()
-
-
-# In[7]:
-
-
-bee.dtypes
-
-
-# In[27]:
-
-
-bee.isnull().sum()
-
-
-# In[25]:
-
-
-bee["subspecies"].unique()
-
-
-# In[36]:
-
-
-#imbalance 
-bee["subspecies"].value_counts()
-
-
-# In[47]:
-
-
-plt.figure(figsize=(16,5))
-plt.bar(bee["subspecies"].value_counts().index, bee["subspecies"].value_counts(), )
-plt.show()
-
-
-# In[30]:
-
-
-bee['health'].value_counts()
-
-
-# In[173]:
-
-
-plt.figure(figsize=(16,5))
-plt.bar(bee['health'].value_counts().index, bee["health"].value_counts(), )
-plt.show()
-'''
+bee=pd.read_csv("../input/bee_data.csv")
 
 # # Consider resampling?
-# #### oversample undersample 
-#     
-
-# In[13]:
-
+# #### oversample undersample
 
 #!pip install nltk
 
 
-# In[22]:
-
-
-from sklearn.model_selection import train_test_split
-from sklearn import preprocessing
 x_train, x_test, y_train, y_test = train_test_split(bee["file"],bee["subspecies"],test_size=0.3,random_state=0)
 
-
-# In[24]:
-
-
-x_train.shape
+#x_train.shape
 
 
-# In[ ]:
-
-
-import skimage
-import skimage.io
-import os
-
-import skimage.transform
-
-
-# In[200]:
-
-
-img_dir="/home/ubuntu/Desktop/Final_Project/honey-bee-annotated-images/bee_imgs"
+img_dir="../input/bee_imgs"
 img = skimage.io.imread(os.path.join(img_dir, '001_047.png'))
 plt.imshow(img)
-plt.show()
-
-
-# In[204]:
-
+#plt.show()
 
 #RGB VALUES 
 img
-
-
-# In[202]:
-
-
-img.shape
-
-
-# In[9]:
-
 
 img_wid = 100
 img_len = 100
@@ -152,9 +40,6 @@ def show_img(file):
     img = skimage.transform.resize(img, (img_wid, img_len), mode='reflect')
 
     return img[:,:,:img_channels]
-
-
-# In[23]:
 
 
 img_wid = 120
@@ -172,21 +57,10 @@ def show_img(file):
 train_img = np.stack(x_train.apply(show_img))
 print(train_img.shape)
 
-
-# In[233]:
-
 #tensor
 test_img = np.stack(x_test.apply(show_img))
 
-
-# In[26]:
-
-
 from keras.preprocessing.image import ImageDataGenerator
-
-
-# In[180]:
-
 
 generator = ImageDataGenerator(
     featurewise_center=False,  # set input mean to 0 over the dataset
@@ -204,10 +78,7 @@ generator = ImageDataGenerator(
 generator.fit(train_img)
 
 
-# ## Two ways encoding label 
-
-# In[171]:
-
+# ## Two ways encoding label
 
 from sklearn.preprocessing import LabelEncoder
 le = LabelEncoder()
@@ -218,57 +89,23 @@ encoded_yt = le.transform(y_test)
 #arget = np_utils.to_categorical(encoded_Y )
 
 
-# In[206]:
-
-
 encoded_Y.shape
-
-
-# In[161]:
-
 
 nb_classes=7
 
-
-# In[207]:
-
-#torch
 from keras.utils import np_utils
 y_tr = np_utils.to_categorical(encoded_Y,nb_classes)
 y_te=np_utils.to_categorical(encoded_yt,nb_classes)
 
-
-# In[209]:
-
-
-y_tr.shape
-
-
-# In[150]:
-
+print(y_tr.shape)
 
 #y_r = pd.get_dummies(y_train)
-
-
-# In[211]:
-
-
-y_tr.shape
-
-
-# In[ ]:
-
-
-
-# In[226]:
 
 
 from keras.models import Sequential
 from keras import optimizers
 from keras.layers import Dense, Activation, Flatten, Conv2D, MaxPooling2D,BatchNormalization
 
-
-# In[227]:
 
 
 def cnn():
@@ -302,10 +139,6 @@ def cnn():
 model = cnn()
 
 
-
-# In[ ]:
-
-
 def cnn_2():
     model = Sequential()
     model.add(Conv2D(input_shape = (train_img.shape[1], train_img.shape[2], train_img.shape[3]), filters = 50, kernel_size = (3,3), strides = (1,1), padding = 'same',kernel_initializer='he_normal'))
@@ -334,21 +167,10 @@ def cnn_2():
 
 model = cnn()
 
-
-# In[228]:
-
-
 model.summary()
 
 
-# In[241]:
-
-
 training1=model.fit(train_img, y_tr, batch_size = 80, validation_split = 0, epochs = 50, verbose = 1)
-
-
-# In[235]:
-
 
 training2= model.fit_generator(generator.flow(train_img,y_tr, batch_size=32)
                         ,epochs=20, verbose = 1
@@ -356,38 +178,19 @@ training2= model.fit_generator(generator.flow(train_img,y_tr, batch_size=32)
                     )
 
 
-# In[243]:
-
-
 results = model.evaluate(test_img, y_te)
 print('Test accuracy: ', results[1])
 
 
-# In[244]:
-
-
 pp=model.predict(test_img)
 
-
-# In[246]:
-
-
 y_pred = np.argmax(pp, axis=1)
-
-
-# In[247]:
 
 
 yyy=le.inverse_transform(encoded_yt)
 
 
-# In[248]:
-
-
 yyyy=le.inverse_transform(y_pred)
-
-
-# In[249]:
 
 
 from sklearn.metrics import classification_report
