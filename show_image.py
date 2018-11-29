@@ -29,8 +29,8 @@ def show_img(file):
 
     return img[:,:,:img_channels]
 
-#plt.imshow(img)
-#plt.show()
+# plt.imshow(img)
+# plt.show()
 
 test = data.iloc[0:2]
 test1 = np.stack(test['file'].apply(show_img))
