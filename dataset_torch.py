@@ -60,12 +60,6 @@ for i in range(7):
 
 
 #define dataset
-preprocess = transforms.Compose([
-    #transforms.Scale(256),
-    #transforms.CenterCrop(224),
-    transforms.ToTensor(),
-])
-
 transform = transforms.Compose(transforms.ToTensor())
 
 class honeybee(Dataset):
@@ -89,7 +83,7 @@ class honeybee(Dataset):
 train_data, test_data = train_test_split(data, test_size=0.3)
 
 train_loader = torch.utils.data.DataLoader(train_data, batch_size=4)
-
+test_loader = torch.utils.data.DataLoader(test_data, batch_size=4)
 # def imshow(img):
 #     img = img / 2 + 0.5
 #     npimg = img.numpy()
