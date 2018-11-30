@@ -44,7 +44,7 @@ dic = {}
 for i in range(7):
     dic[target_list[i]] = i
 
-
+data = data.replace({"subspecies": dic})
 
 # img_img = data["file"]
 # img_path = [os.path.join(img_dir, i) for i in img_img]
