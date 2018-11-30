@@ -60,19 +60,21 @@ for i in range(7):
 
 
 #define dataset
-transform = transforms.Compose(transforms.ToTensor())
 
 class honeybee(Dataset):
     def __init__(self, data, transform = None):
         self.data = data
         self.img_dir = '../input/bee_imgs'
-        self.transform = transforms.ToTensor()
+        self.transform = transforms.Compose([transforms.ToTensor()])
 
     def __getitem__(self, index):
         img = os.path.join(self.img_dir, data.iloc[index,0])
         image = Image.open(img)
+        image = image.resize((120,120))
         image = image.convert('RGB')
+        image = self.transform(image)
         label = self.data.iloc[index, 5]
+
         return image,label
 
     def __len__(self):
@@ -85,11 +87,12 @@ train_data = honeybee(train_data)
 test_data = honeybee(test_data)
 train_loader = torch.utils.data.DataLoader(train_data,  batch_size=4)
 test_loader = torch.utils.data.DataLoader(test_data, batch_size=4)
-# def imshow(img):
-#     img = img / 2 + 0.5
-#     npimg = img.numpy()
-#     plt.imshow(np.transpose(npimg, (1, 2, 0)))
-#
+
+def imshow(img):
+    img = img / 2 + 0.5
+    npimg = img.numpy()
+    plt.imshow(np.transpose(npimg, (1, 2, 0)))
+
 dataiter = iter(train_loader)
 images, labels = dataiter.next()
 
