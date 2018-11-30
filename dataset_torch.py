@@ -63,35 +63,36 @@ for i in range(7):
 transform = transforms.Compose(transforms.ToTensor())
 
 class honeybee(Dataset):
-    def __init__(self, data, img_dir, transform = None):
+    def __init__(self, data, transform = None):
         self.data = data
-        self.img_dir = img_dir
+        self.img_dir = '../input/bee_imgs'
         self.transform = transforms.ToTensor()
 
     def __getitem__(self, index):
         img = os.path.join(self.img_dir, data.iloc[index,0])
         image = Image.open(img)
         image = image.convert('RGB')
-        label = self.self.data.iloc[index, 5]
+        label = self.data.iloc[index, 5]
         return image,label
 
     def __len__(self):
-        return len(self.images)
+        return len(self.data)
 
 
 # split train test
 train_data, test_data = train_test_split(data, test_size=0.3)
-
-train_loader = torch.utils.data.DataLoader(train_data, batch_size=4)
+train_data = honeybee(train_data)
+test_data = honeybee(test_data)
+train_loader = torch.utils.data.DataLoader(train_data,  batch_size=4)
 test_loader = torch.utils.data.DataLoader(test_data, batch_size=4)
 # def imshow(img):
 #     img = img / 2 + 0.5
 #     npimg = img.numpy()
 #     plt.imshow(np.transpose(npimg, (1, 2, 0)))
 #
-# dataiter = iter(train_loader)
-# images, labels = dataiter.next()
-#
+dataiter = iter(train_loader)
+images, labels = dataiter.next()
+
 # imshow(utils.make_grid(images))
 # plt.show()
 # #----------
