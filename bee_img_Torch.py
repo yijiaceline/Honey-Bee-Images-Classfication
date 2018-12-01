@@ -5,8 +5,8 @@ import torch
 from torch.autograd import Variable
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms, utils, models
+from torch.utils.data import Dataset
+from torchvision import transforms
 from sklearn.model_selection import train_test_split
 import skimage
 import skimage.io
@@ -14,6 +14,7 @@ from pandas import Series
 import os
 import skimage.transform
 from PIL import Image
+from time import time
 
 
 data_dir = 'input'
@@ -23,17 +24,6 @@ data = pd.read_csv(data_csv)
 
 def to_file_path(file_name):
     return os.path.join(img_dir, file_name)
-
-img_wid = 120
-img_len = 120
-img_channels = 3 #RGB
-
-#get image
-def show_img(file):
-    img = skimage.io.imread(os.path.join(img_dir, file))
-    img = skimage.transform.resize(img, (img_wid, img_len), mode='reflect')
-
-    return img[:,:,:img_channels]
 
 #set subspecies
 target = data['subspecies']
@@ -61,7 +51,7 @@ class honeybee(Dataset):
         image = image.convert('RGB')
         image = self.transform(image)
         label = self.data.iloc[index, 5]
-        label = torch.tensor(np.asarray(int(label)))
+        label = torch.tensor(np.asarray(label))
 
         return image,label
 
@@ -75,7 +65,7 @@ train_data = honeybee(train_data)
 test_data = honeybee(test_data)
 
 
-epochs = 5
+epochs = 30
 batch_size = 32
 learning_rate = 0.01
 
@@ -93,30 +83,31 @@ class CNN(nn.Module):
 
 
         self.layer1 = nn.Sequential(
-            nn.Conv2d(3, 50, kernel_size=3, padding=2),  # RGB image channel = 3, output channel = num_filter
-            nn.BatchNorm2d(50),
+            nn.Conv2d(3, 32, kernel_size=3, padding=2),  # RGB image channel = 3, output channel = num_filter
+            nn.BatchNorm2d(32),
             nn.ReLU())
         self.layer2 = nn.Sequential(
-            nn.Conv2d(50, 50, kernel_size=3, stride= 1, padding=2),
-            nn.BatchNorm2d(50),
+            nn.Conv2d(32, 64, kernel_size=3, stride= 1, padding=2),
+            nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(2))
-        
+        '''
         self.layer3 = nn.Sequential(
             nn.Conv2d(50, 50, kernel_size=3, stride=1, padding=2),
             nn.BatchNorm2d(50),
             nn.ReLU(),
             nn.MaxPool2d(2))
-
-        self.fc1 = nn.Linear(16*16*50,7)
-        #self.fc2 = nn.Linear(32, 7)
+        '''
+        self.fc1 = nn.Linear(62*62*64,64)
+        self.fc2 = nn.Linear(64, 7)
 
     def forward(self, x):
         out = self.layer1(x)
         out = self.layer2(out)
-        out = self.layer3(out)
+        #out = self.layer3(out)
         out = out.view(out.size(0), -1)
         out = self.fc1(out)
+        out = self.fc2(out)
         return out
 
 
@@ -126,6 +117,7 @@ cnn.cuda()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(cnn.parameters(), lr=learning_rate)
 # -----------------------------------------------------------------------------------
+start = time()
 # Train the Model
 for epoch in range(epochs):
     for i, (images, labels) in enumerate(train_loader):
@@ -140,8 +132,8 @@ for epoch in range(epochs):
         optimizer.step()
 
         if (i + 1) % 100 == 0:
-            print('Epoch [%d/%d], Iter [%d/%d] Loss: %.4f'
-                  % (epoch + 1, epochs, i + 1, loss.item()))
+            print('Epoch [%d/%d],  Loss: %.4f'
+                  % (epoch + 1, epochs, loss.item()))
 
 
 # -----------------------------------------------------------------------------------
@@ -156,5 +148,7 @@ for images, labels in test_loader:
     total += labels.size(0)
     correct += (predicted.cpu() == labels).sum()
 
+end = time()
+print('Computational Time:', end - start)
 # -----------------------------------------------------------------------------------
 print('Test Accuracy of the model on the 10000 test images: %d %%' % (100 * correct / total))
