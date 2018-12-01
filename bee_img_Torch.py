@@ -108,7 +108,7 @@ class CNN(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(2))
 
-        self.fc1 = nn.Linear(51200,32)
+        self.fc1 = nn.Linear(16*16*50,7)
         #self.fc2 = nn.Linear(32, 7)
 
     def forward(self, x):
@@ -121,6 +121,7 @@ class CNN(nn.Module):
 
 
 cnn = CNN()
+cnn.cuda()
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(cnn.parameters(), lr=learning_rate)
@@ -128,8 +129,8 @@ optimizer = optim.Adam(cnn.parameters(), lr=learning_rate)
 # Train the Model
 for epoch in range(epochs):
     for i, (images, labels) in enumerate(train_loader):
-        images = Variable(images)
-        labels = Variable(labels)
+        images = Variable(images).cuda()
+        labels = Variable(labels).cuda()
 
         # Forward + Backward + Optimize
         optimizer.zero_grad()
@@ -149,7 +150,7 @@ cnn.eval()  # Change model to 'eval' mode (BN uses moving mean/var).
 correct = 0
 total = 0
 for images, labels in test_loader:
-    images = Variable(images)
+    images = Variable(images).cuda()
     outputs = cnn(images)
     _, predicted = torch.max(outputs.data, 1)
     total += labels.size(0)
