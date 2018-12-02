@@ -8,11 +8,9 @@ import torch.optim as optim
 from torch.utils.data import Dataset
 from torchvision import transforms
 from sklearn.model_selection import train_test_split
-import skimage
-import skimage.io
+from torch.autograd import Variable
 from pandas import Series
 import os
-import skimage.transform
 from PIL import Image
 from time import time
 
@@ -65,32 +63,30 @@ train_data = honeybee(train_data)
 test_data = honeybee(test_data)
 
 
-epochs = 30
+epochs = 20
 batch_size = 32
-learning_rate = 0.01
+learning_rate = 0.001
 
 #Data Loader
 train_loader = torch.utils.data.DataLoader(dataset=train_data, batch_size=batch_size,shuffle=True)
 test_loader = torch.utils.data.DataLoader(dataset=test_data, batch_size=batch_size, shuffle=False)
-'''
-dataiter = iter(train_loader)
-images, labels = dataiter.next()
-'''
+
 # CNN Model
 class CNN(nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
-
 
         self.layer1 = nn.Sequential(
             nn.Conv2d(3, 32, kernel_size=3, padding=2),  # RGB image channel = 3, output channel = num_filter
             nn.BatchNorm2d(32),
             nn.ReLU())
         self.layer2 = nn.Sequential(
-            nn.Conv2d(32, 64, kernel_size=3, stride= 1, padding=2),
+            nn.Conv2d(32, 64, kernel_size=5, stride= 1, padding=2),
             nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2))
+            nn.MaxPool2d(2),
+            nn.Softmax2d(),
+            nn.Dropout(p=0.5))
+
         '''
         self.layer3 = nn.Sequential(
             nn.Conv2d(50, 50, kernel_size=3, stride=1, padding=2),
@@ -98,7 +94,7 @@ class CNN(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(2))
         '''
-        self.fc1 = nn.Linear(62*62*64,64)
+        self.fc1 = nn.Linear(61*61*64,64)
         self.fc2 = nn.Linear(64, 7)
 
     def forward(self, x):
@@ -118,6 +114,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(cnn.parameters(), lr=learning_rate)
 # -----------------------------------------------------------------------------------
 start = time()
+Loss = []
 # Train the Model
 for epoch in range(epochs):
     for i, (images, labels) in enumerate(train_loader):
@@ -134,6 +131,15 @@ for epoch in range(epochs):
         if (i + 1) % 100 == 0:
             print('Epoch [%d/%d],  Loss: %.4f'
                   % (epoch + 1, epochs, loss.item()))
+        Loss.append(loss.item())
+
+
+plt.title("CrossEntropyLoss")
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.plot(Loss)
+plt.show()
+
 
 
 # -----------------------------------------------------------------------------------
@@ -151,4 +157,4 @@ for images, labels in test_loader:
 end = time()
 print('Computational Time:', end - start)
 # -----------------------------------------------------------------------------------
-print('Test Accuracy of the model on the 10000 test images: %d %%' % (100 * correct / total))
+print('Test Accuracy of the model on the 1552 test images: %d %%' % (100 * correct / total))
