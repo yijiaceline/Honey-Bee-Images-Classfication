@@ -28,6 +28,8 @@ import skimage.io
 import os
 import skimage.transform
 
+np.random.seed(1)
+
 x_train, x_test, y_train, y_test = train_test_split(New["file"],New["health"],test_size=0.3,random_state=0)
 
 #x_train.shape
@@ -161,43 +163,52 @@ model = cnn()
 model.summary()
 
 #fit trainning data model
-training1 = model.fit(train_img, y_train, batch_size=30, validation_split=0, epochs=50, verbose=1)
+training1 = model.fit(train_img, y_train, batch_size=32, validation_split=0.2, epochs=20, verbose=1)
 
 
 training2 = model.fit_generator(generator.flow(train_img, y_train, batch_size=32)
                                 , epochs=20, verbose=1
-                                , steps_per_epoch=50
+                                , steps_per_epoch=20
                                 )
 #print(training2.history.keys())
 
-accuracy = training2.history['acc']
-loss = training2.history['loss']
+accuracy = training1.history['acc']
+loss = training1.history['loss']
 
 epochs = range(1, len(accuracy) + 1)
 
-plt.plot(training2.history['acc'])
+plt.plot(accuracy)
 plt.title('Model accuracy')
 plt.ylabel('Accuracy')
 plt.xlabel('Epoch')
-#plt.legend(['Train', 'Test'], loc='upper left')
+plt.show()
+
+
+plt.plot(loss)
+plt.title('Model loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.show()
 
 '''
 plt.plot(epochs, loss, label='loss')
 plt.legend()
 plt.figure()
 '''
+'''  
 plt.plot(training2.history['loss'])
 plt.title('Model loss')
 plt.ylabel('Loss')
 plt.xlabel('Epoch')
 #plt.legend(['Train', 'Test'], loc='upper left')
 #plt.show()
-
+'''
+''' 
 #evaluate test data
 results = model.evaluate(test_img, y_test)
 print('Test accuracy: ', results[1])
 
-plt.plot(training1)
+#plt.plot(training1)
 pred_test = model.predict(test_img)
 y_pred = np.argmax(pred_test, axis=1)
 
@@ -207,3 +218,4 @@ yyyy = le.inverse_transform(y_pred)
 from sklearn.metrics import classification_report
 print(classification_report(yyy, yyyy))
 plt.show()
+'''
