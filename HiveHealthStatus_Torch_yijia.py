@@ -5,8 +5,8 @@ import torch
 from torch.autograd import Variable
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms, utils, models
+from torch.utils.data import Dataset
+from torchvision import transforms
 from sklearn.model_selection import train_test_split
 import skimage
 import skimage.io
@@ -16,24 +16,34 @@ import skimage.transform
 from PIL import Image
 from time import time
 
+
 data_dir = '../input'
 img_dir = os.path.join(data_dir, 'bee_imgs')
 data_csv = os.path.join(data_dir, 'bee_data.csv')
 data = pd.read_csv(data_csv)
 
+#unhealthy
+unhealthy = data.loc[data['health'] != 'healthy']
+
+healthy = data.loc[data['health'] == 'healthy']
+
+data = data.replace(['hive being robbed', 'few varrao, hive beetles', 'Varroa, Small Hive Beetles', 'ant problems', 'missing queen'],
+             'unhealthy')
+
 def to_file_path(file_name):
     return os.path.join(img_dir, file_name)
 
+
 #set subspecies
-target = data['subspecies']
+target = data['health']
 target = Series.as_matrix(target)
 target_list = set(target)
 target_list = list(target_list)
 
 dic = {}
-for i in range(7):
+for i in range(2):
     dic[target_list[i]] = i
-data = data.replace({"subspecies": dic})
+data = data.replace({"health": dic})
 
 #define dataset
 
@@ -49,7 +59,7 @@ class honeybee(Dataset):
         image = image.resize((120,120))
         image = image.convert('RGB')
         image = self.transform(image)
-        label = self.data.iloc[index, 5]  # type: object
+        label = self.data.iloc[index, 6]
         label = torch.tensor(np.asarray(label))
 
         return image,label
@@ -59,12 +69,12 @@ class honeybee(Dataset):
 
 
 # split train test
-train, test = train_test_split(data, test_size=0.3)
-train_data = honeybee(train)
-test_data = honeybee(test)
+train_data, test_data = train_test_split(data, test_size=0.3)
+train_data = honeybee(train_data)
+test_data = honeybee(test_data)
 
 
-epochs = 10
+epochs = 15
 batch_size = 32
 learning_rate = 0.01
 
@@ -77,36 +87,31 @@ images, labels = dataiter.next()
 '''
 
 # CNN Model
-
 class CNN(nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
 
+
         self.layer1 = nn.Sequential(
-            nn.Conv2d(3, 16, kernel_size=3, stride= 1, padding=2),  # RGB image channel = 3, output channel = num_filter
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Softmax())
-        self.layer2 = nn.Sequential(
-            nn.Conv2d(16, 32, kernel_size=3, stride= 1, padding=2),
+            nn.Conv2d(3, 32, kernel_size=3, stride= 1, padding=2),  # RGB image channel = 3, output channel = num_filter
             nn.BatchNorm2d(32),
+            nn.ReLU())
+        self.layer2 = nn.Sequential(
+            nn.Conv2d(32, 64, kernel_size=3, stride= 1, padding=2),
+            nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size = 2, stride = 2)，
-            nn.Softmax()
-            ) #output size (64,61,61)
+            nn.MaxPool2d(kernel_size = 2, stride = 2)) #output size (64,61,61)
 
         self.layer3 = nn.Sequential(
-            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=2),
-            nn.BatchNorm2d(64),
-            nn.MaxPool2d(kernel_size = 2, stride = 2),
-            nn.Softmax())
-            #output size(64,32,32)
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=2),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size = 2, stride = 2)) #output size(128,32,32)
 
         self.layer4 = nn.Sequential(
-            nn.Linear(64*32*32, 256),
-            nn.Linear(256, 128),
-            nn.Linear(128, 7),
-            )
+            nn.Linear(128*32*32, 2048),
+            nn.Linear(2048, 128),
+            nn.Linear(128, 2))
 
     def forward(self, x):
         out = self.layer1(x)
@@ -118,7 +123,6 @@ class CNN(nn.Module):
         return out
 
 cnn = CNN()
-
 cnn.cuda()
 
 criterion = nn.CrossEntropyLoss()
@@ -126,7 +130,6 @@ optimizer = optim.Adam(cnn.parameters(), lr=learning_rate)
 # -----------------------------------------------------------------------------------
 start = time()
 # Train the Model
-losses = []
 for epoch in range(epochs):
     for i, (images, labels) in enumerate(train_loader):
         images = Variable(images).cuda()
@@ -138,11 +141,10 @@ for epoch in range(epochs):
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
-        losses.append(loss.item())
-        if (i + 1) % 10 == 0:
-            print('Epoch [%d/%d], Step [%d/%d], Loss: %.4f'
-                  % (epoch + 1, epochs, i + 1, len(train_data) // batch_size, loss.data[0]))
 
+        if (i + 1) % 100 == 0:
+            print('Epoch [%d/%d],  Loss: %.4f'
+                  % (epoch + 1, epochs, loss.item()))
 
 
 # -----------------------------------------------------------------------------------
@@ -161,13 +163,3 @@ end = time()
 print('Computational Time:', end - start)
 # -----------------------------------------------------------------------------------
 print('Test Accuracy of the model on the 1000 test images: %d %%' % (100 * correct / total))
-
-
-#----------
-# visualization
-losses_in_epochs = losses[0::500]
-plt.title("CrossEntropyLoss")
-plt.xlabel('Epoch')
-plt.ylabel('Loss')
-plt.plot(losses_in_epochs)
-plt.show()
