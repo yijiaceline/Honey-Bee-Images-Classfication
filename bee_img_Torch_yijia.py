@@ -21,8 +21,6 @@ img_dir = os.path.join(data_dir, 'bee_imgs')
 data_csv = os.path.join(data_dir, 'bee_data.csv')
 data = pd.read_csv(data_csv)
 
-def to_file_path(file_name):
-    return os.path.join(img_dir, file_name)
 
 #set subspecies
 target = data['subspecies']
@@ -41,16 +39,22 @@ class honeybee(Dataset):
     def __init__(self, data, transform = None):
         self.data = data
         self.img_dir = '../input/bee_imgs'
-        self.transform = transforms.Compose([transforms.ToTensor()])
+        self.transform = transforms.Compose([
+                         transforms.ToTensor(),
+                         transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225])
+                         ])
 
     def __getitem__(self, index):
-        img = os.path.join(self.img_dir, data.iloc[index,0])
+        img = os.path.join(self.img_dir, self.data.iloc[index,0])
         image = Image.open(img)
         image = image.resize((120,120))
         image = image.convert('RGB')
         image = self.transform(image)
-        label = self.data.iloc[index, 5]  # type: object
-        label = torch.tensor(np.asarray(label))
+        label = np.asarray(self.data.iloc[index, 5])  # type: object
+        # label = self.transform(label)
+        # label = torch.tensor(np.asarray(label))
+        # label = torch.from_numpy(np.asarray(label))
 
         return image,label
 
@@ -64,9 +68,9 @@ train_data = honeybee(train)
 test_data = honeybee(test)
 
 
-epochs = 10
-batch_size = 32
-learning_rate = 0.01
+epochs = 25
+batch_size = 16
+learning_rate = 0.001
 
 #Data Loader
 train_loader = torch.utils.data.DataLoader(dataset=train_data, batch_size=batch_size,shuffle=True)
@@ -83,29 +87,33 @@ class CNN(nn.Module):
         super(CNN, self).__init__()
 
         self.layer1 = nn.Sequential(
-            nn.Conv2d(3, 16, kernel_size=3, stride= 1, padding=2),  # RGB image channel = 3, output channel = num_filter
-            nn.BatchNorm2d(16),
+            nn.Conv2d(3, 32, kernel_size=3, stride= 1, padding=2),  # RGB image channel = 3, output channel = num_filter
             nn.ReLU(),
-            nn.Softmax())
+            nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=2),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Dropout(p=0.5)) #output size (16,61,61)
+
         self.layer2 = nn.Sequential(
-            nn.Conv2d(16, 32, kernel_size=3, stride= 1, padding=2),
-            nn.BatchNorm2d(32),
+            nn.Conv2d(32, 64, kernel_size=3, stride= 1, padding=2),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size = 2, stride = 2)，
-            nn.Softmax()
-            ) #output size (64,61,61)
+            nn.MaxPool2d(kernel_size = 2, stride = 2),  #output size (32,32,32)
+            nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=2),
+            nn.ReLU(),
+            nn.Dropout(p=0.5)
+            ) #output size (32,34,34)
 
         self.layer3 = nn.Sequential(
-            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=2),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=2),
+            nn.ReLU(),
             nn.MaxPool2d(kernel_size = 2, stride = 2),
-            nn.Softmax())
-            #output size(64,32,32)
+            nn.Dropout(p=0.5))
+            #output size(64,18,18)
 
         self.layer4 = nn.Sequential(
-            nn.Linear(64*32*32, 256),
+            nn.Linear(128*18*18, 256),
             nn.Linear(256, 128),
-            nn.Linear(128, 7),
+            nn.Linear(128, 7)
+            # nn.Softmax()
             )
 
     def forward(self, x):
@@ -165,9 +173,9 @@ print('Test Accuracy of the model on the 1000 test images: %d %%' % (100 * corre
 
 #----------
 # visualization
-losses_in_epochs = losses[0::500]
+
 plt.title("CrossEntropyLoss")
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
-plt.plot(losses_in_epochs)
+plt.plot(losses)
 plt.show()
