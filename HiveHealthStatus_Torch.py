@@ -14,7 +14,7 @@ from time import time
 import matplotlib.pyplot as plt
 
 
-data_dir = 'input'
+data_dir = '../input'
 img_dir = os.path.join(data_dir, 'bee_imgs')
 data_csv = os.path.join(data_dir, 'bee_data.csv')
 data = pd.read_csv(data_csv)
@@ -46,7 +46,7 @@ data = data.replace({"health": dic})
 class honeybee(Dataset):
     def __init__(self, data):
         self.data = data
-        self.img_dir = 'input/bee_imgs'
+        self.img_dir = '../input/bee_imgs'
         self.transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
@@ -94,12 +94,12 @@ class CNN(nn.Module):
 
         self.layer3 = nn.Sequential(
             nn.Conv2d(64, 64, kernel_size=2, stride=1), #31
-            nn.Softmax2d(),
+            # nn.Softmax2d(),
             nn.MaxPool2d(kernel_size=3, stride=2) #15
             )
 
-        self.fc1 = nn.Linear(15*15*64,2)
-        #self.fc2 = nn.Linear(64, 2)
+        self.fc1 = nn.Linear(15*15*64,64)
+        self.fc2 = nn.Linear(64, 2)
 
 
     def forward(self, x):
@@ -108,7 +108,7 @@ class CNN(nn.Module):
         out = self.layer3(out)
         out = out.view(out.size(0), -1)
         out = self.fc1(out)
-        #out = self.fc2(out)
+        out = self.fc2(out)
         return out
 
 
@@ -117,13 +117,13 @@ cnn.cuda()
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adadelta(cnn.parameters(), lr=learning_rate)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.1)
+# scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.1)
 # -----------------------------------------------------------------------------------
 start = time()
 Loss = []
 # Train the Model
 for epoch in range(epochs):
-    scheduler.step()
+    # scheduler.step()
     for i, (images, labels) in enumerate(train_loader):
         images = Variable(images).cuda()
         labels = Variable(labels).cuda()
