@@ -14,10 +14,10 @@ It contains 5,172 bee images annotated with location, date, time, subspecies, he
 Please run EDA.py
 
 3. Modelling
-  - Keras
+   - Keras
       HiveHealth_Keras.py
 
-  - Pytorch
+   - Pytorch
       Subspecies_Torch.py
       HiveHealth_Torch.py
     
