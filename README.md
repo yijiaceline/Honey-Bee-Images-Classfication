@@ -7,4 +7,6 @@ This dataset is from kaggle, The BeeImage Dataset: Annotated Honey Bee Images: h
 It contains 5,172 bee images annotated with location, date, time, subspecies, health condition, caste, and pollen.
 
 Keras: CNN
+
+
 Pytorch: CNN
