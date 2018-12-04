@@ -187,7 +187,7 @@ print(metrics.classification_report(Label, y_predict, target_names=target_list))
 
 #Plot the loss
 plt.title("CrossEntropyLoss")
-plt.xlabel('Epoch')
+plt.xlabel('Iteration')
 plt.ylabel('Loss')
 plt.plot(Loss)
 plt.ylim(0,1)
