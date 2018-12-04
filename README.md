@@ -15,9 +15,9 @@ Please run EDA.py
 
 3. Modelling
    - Keras
-      HiveHealth_Keras.py
+         HiveHealth_Keras.py
 
    - Pytorch
-      Subspecies_Torch.py
-      HiveHealth_Torch.py
+         Subspecies_Torch.py
+         HiveHealth_Torch.py
     
