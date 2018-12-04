@@ -8,7 +8,7 @@ It contains 5,172 bee images annotated with location, date, time, subspecies, he
 #### Getting Started:
 ##### 1. Download the Data
 Please download the dataset here:
-https://console.cloud.google.com/storage/browser/group4_data
+http://storage.googleapis.com/group4_data/input.zip
 
 To view an image, run show_img.py
  
