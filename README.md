@@ -19,7 +19,7 @@ Please run EDA.py
 ##### 3. Modelling
 We use CNN to classify bee subspecies and hive health by 2 frameworks Keras and Pytorch. 
    - Keras:  
-     - Subspecies_Keras.py
+     - Subspecies_Keras.py (20 cnn models included with different hyperparameters)
      - HiveHealth_Keras.py (comment out line 135, 136 to run training1, at the same time, comment line 138, 139)
 
    - Pytorch: 
