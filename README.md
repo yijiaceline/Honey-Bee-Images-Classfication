@@ -23,6 +23,6 @@ We use CNN to classify bee subspecies and hive health by 2 frameworks Keras and 
      - HiveHealth_Keras.py (comment out line 135, 136 to run training1, at the same time, comment line 138, 139)
 
    - Pytorch: 
-     - Subspecies_Torch.py
+     - Subspecies_Torch.py (you could try different channel in cnn module, and change batch size for experiment)
      - HiveHealth_Torch.py
     
