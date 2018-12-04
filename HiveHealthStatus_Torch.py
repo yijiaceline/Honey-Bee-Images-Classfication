@@ -23,13 +23,8 @@ data = pd.read_csv(data_csv)
 #unhealthy
 unhealthy = data.loc[data['health'] != 'healthy']
 healthy = data.loc[data['health'] == 'healthy']
-
 data = data.replace(['hive being robbed', 'few varrao, hive beetles', 'Varroa, Small Hive Beetles', 'ant problems', 'missing queen'],
              'unhealthy')
-
-
-def to_file_path(file_name):
-    return os.path.join(img_dir, file_name)
 
 #set health
 target = data['health']
@@ -113,7 +108,6 @@ class CNN(nn.Module):
 
         return out
 
-
 cnn = CNN()
 cnn.cuda()
 
@@ -141,7 +135,6 @@ for epoch in range(epochs):
             print('Epoch [%d/%d],  Loss: %.4f'
                   % (epoch + 1, epochs, loss.item()))
         Loss.append(loss.item())
-
 
 # -----------------------------------------------------------------------------------
 # Test the Model
@@ -180,7 +173,7 @@ print('Computational Time:', end - start)
 # -----------------------------------------------------------------------------------
 print('Test Accuracy of the model on the 1552 test images: %d %%' % (100 * correct / total))
 
-#print the f1 score
+#plot the classification_report
 Label = np.concatenate(Label).ravel()
 y_predict = np.concatenate(y_predict).ravel()
 print(metrics.classification_report(Label, y_predict, target_names=target_list))
@@ -207,4 +200,3 @@ plt.ylabel('True Positive Rate')
 plt.title('Receiver operating characteristic for all labels')
 plt.legend(loc="lower right")
 plt.show()
-
