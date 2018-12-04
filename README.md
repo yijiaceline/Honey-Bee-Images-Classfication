@@ -10,6 +10,8 @@ It contains 5,172 bee images annotated with location, date, time, subspecies, he
 Please download the dataset here:
 http://storage.googleapis.com/group4_data/input.zip
 
+Please check on the path before running the code. The dataset should be in the right path as '../input' after unzip the file.
+
 To view an image, run show_img.py
  
 ##### 2. EDA
