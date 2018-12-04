@@ -611,7 +611,7 @@ def cnn_43g(): #model43
     model.add(MaxPooling2D(pool_size = (2,2)))
     model.add(Conv2D(filters = 50, kernel_size = (3,3), strides = (1,1), padding = 'same',name="conv2"))
     model.add(Activation('relu'))
-    model.add(MaxPooling2D(pool_size = (2,2)))
+    model.add(MaxPooling2D(pool_size = (2,2)))#tried filters = 30 did not improve
     model.add(Conv2D(filters = 50, kernel_size = (3,3), strides = (1,1), padding = 'same',name="conv3"))
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size = (2,2)))
