@@ -1182,7 +1182,7 @@ def weighted_categorical_crossentropy(weights):
 
 # In[174]:
 
-
+weights=[0.2456307,1.40200596, 1.47476476, 1.5653753, 1.72630174, 3.71284996, 19.96911197]#from compute class weight
 def cnn_43w():#weighted_categorical_crossentropy
     model = Sequential()
     model.add(Conv2D(input_shape = (train_img.shape[1], train_img.shape[2], train_img.shape[3]), filters = 50, kernel_size = (3,3), strides = (1,1), padding = 'same', name='conv1'))
