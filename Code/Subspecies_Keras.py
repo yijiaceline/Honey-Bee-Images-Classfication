@@ -272,7 +272,7 @@ def basic_cnn_Sg():#using sigmoid
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size = (2,2)))
     model.add(Flatten())
-    #7 hidden neurons(fully connected)
+    
     model.add(Dense(7, activation = 'sigmoid'))
     adam = optimizers.Adam(lr = 0.001)
     model.compile(loss = 'binary_crossentropy', optimizer = adam, metrics = ['accuracy'])
@@ -294,7 +294,7 @@ def basic_cnn_R():#using relu
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size = (2,2)))
     model.add(Flatten())
-    #7 hidden neurons(fully connected)
+    
     model.add(Dense(7, activation = 'relu'))
     adam = optimizers.Adam(lr = 0.001)
     model.compile(loss = 'categorical_crossentropy', optimizer = adam, metrics = ['accuracy'])
@@ -431,7 +431,6 @@ def basic_cnn_SS():#using sgd
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size = (2,2)))
     model.add(Flatten())
-    #7 hidden neurons(fully connected)
     model.add(Dense(7, activation = 'softmax'))
     sgd = optimizers.sgd(lr = 0.001)
     model.compile(loss = 'categorical_crossentropy', optimizer = sgd, metrics = ['accuracy'])
@@ -494,7 +493,6 @@ def basic_cnn_Sa():#using softmax
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size = (2,2)))
     model.add(Flatten())
-    #7 hidden neurons(fully connected)
     model.add(Dense(7, activation = 'softmax'))
     adam = optimizers.Adam(lr = 0.001)
     model.compile(loss = 'categorical_crossentropy', optimizer = adam, metrics = ['accuracy'])
@@ -632,7 +630,7 @@ model43 = cnn_43g()
 # In[89]:
 
 
-start=time.time()#3,3,3,3,2,2 model43
+start=time.time()#3,3,3,3,3,3,2,2 model43
 training43=model43.fit(train_img, y_tr, batch_size = 32, validation_split = 0.2, epochs = 50, verbose = 1,callbacks=[stop1])
 end=time.time()
 print("--------------------------")
@@ -649,7 +647,7 @@ print('Test accuracy for deeper cnn 43: ', results43[1])
 # In[91]:
 
 
-show_report(encoded_yt, test_img, model43)#3,3,3,3,2,2 model43
+show_report(encoded_yt, test_img, model43)#3,3,3,3,3,3,2,2 model43
 
 
 # In[92]:
@@ -684,7 +682,7 @@ def cnn_4364(): #model43
     return model    
 
 model4364 = cnn_4364()
-start=time.time()#3,3,3,3,2,2
+start=time.time()#3,3,3,3,3,3,2,2
 training4364=model4364.fit(train_img, y_tr, batch_size = 64, validation_split = 0.2, epochs = 50, verbose = 1,callbacks=[stop1])
 end=time.time()
 print("--------------------------")
@@ -730,7 +728,6 @@ def cnn_43h(): #using he_normal
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size = (2,2)))
     model.add(Flatten())
-    #dense layer with 50 neurons
     model.add(Dense(50, activation = 'relu',name='dense'))
     model.add(Dense(7, activation = 'softmax',name='preds'))
     adam = optimizers.Adam(lr = 0.001)
@@ -791,7 +788,6 @@ def cnn_43_drop():#one dropout layer
     model.add(MaxPooling2D(pool_size = (2,2)))
     model.add(Dropout(0.2))
     model.add(Flatten())
-    #dense layer with 50 neurons
     model.add(Dense(50, activation = 'relu',name='dense'))
     model.add(Dense(7, activation = 'softmax',name='preds'))
     adam = optimizers.Adam(lr = 0.001)
@@ -967,7 +963,7 @@ model33_b = dropout_normal_cnn2()
 
 
 from keras import regularizers
-def dropout_ncnn3():# Adding regularizers
+def dropout_ncnn3():# Adding regularizers t
     model = Sequential()
     model.add(Conv2D(input_shape = (train_img.shape[1], train_img.shape[2], train_img.shape[3]), filters = 50, kernel_size = (3,3), strides = (1,1), padding = 'same',kernel_regularizer=regularizers.l2(0.0001)))
     model.add(Activation('relu'))
@@ -1127,7 +1123,7 @@ def weighted_categorical_crossentropy(weights):
 
 # In[174]:
 
-weights=[0.2456307,1.40200596, 1.47476476, 1.5653753, 1.72630174, 3.71284996, 19.96911197]#from compute class weight
+weights=[1.72630174,  1.5653753, 1.47476476, 0.2456307, 1.40200596, 3.71284996, 19.96911197]#from compute class weight(used in applying class weight to traing while acc is 0.86 deleted)
 def cnn_43w():#weighted_categorical_crossentropy
     model = Sequential()
     model.add(Conv2D(input_shape = (train_img.shape[1], train_img.shape[2], train_img.shape[3]), filters = 50, kernel_size = (3,3), strides = (1,1), padding = 'same', name='conv1'))
@@ -1220,7 +1216,6 @@ def cnn_43f():
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size = (2,2)))
     model.add(Flatten())
-    #dense layer with 50 neurons
     model.add(Dense(50, activation = 'relu',name='dense'))
     model.add(Dense(7, activation = 'sigmoid',name='preds'))
     adam = optimizers.Adam(lr = 0.001)
@@ -1402,7 +1397,6 @@ def basic_cnn_SS2():#using sgd
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size = (2,2)))
     model.add(Flatten())
-    #7 hidden neurons(fully connected)
     model.add(Dense(7, activation = 'softmax'))
     sgd = optimizers.sgd(lr = 0.001)
     model.compile(loss = 'categorical_crossentropy', optimizer = sgd, metrics = ['accuracy'])
@@ -1516,7 +1510,6 @@ def cnn_43ff():
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size = (2,2)))
     model.add(Flatten())
-    #dense layer with 50 neurons
     model.add(Dense(50, activation = 'relu',name='dense'))
     model.add(Dense(7, activation = 'sigmoid',name='preds'))
     adam = optimizers.Adam(lr = 0.001)
